@@ -33,15 +33,18 @@ public class GameController {
             while (gameCommand.equals("R")) {
                 upBridge = new ArrayList<>();
                 downBridge = new ArrayList<>();
-                gameProcess(bridge, upBridge, downBridge);
+                gameSuccess = gameProcess(bridge, upBridge, downBridge);
+                count++;
+                if (gameSuccess) {
+                    break;
+                }
 
                 gameCommand = getGameCommand();
                 if (gameCommand.equals("Q")) {
                     break;
                 }
-                count++;
-                getFinalResult(upBridge, downBridge, gameSuccess, count);
             }
+            getFinalResult(upBridge, downBridge, gameSuccess, count);
         }
     }
 
@@ -113,7 +116,7 @@ public class GameController {
         String upBridgeFinalState = upBridge.get(upBridge.size() - 1);
         String downBridgeFinalState = downBridge.get(downBridge.size() - 1);
 
-        return upBridgeFinalState.equals("O") || downBridgeFinalState.equals("X");
+        return upBridgeFinalState.equals("O") || downBridgeFinalState.equals("O");
     }
 
     private void getFinalResult(List<String> upBridge, List<String> downBridge, boolean gameSuccess, int attemptCount) {
