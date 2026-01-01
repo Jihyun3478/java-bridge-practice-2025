@@ -1,5 +1,6 @@
 package bridge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +20,20 @@ public class BridgeMaker {
      */
     public List<String> makeBridge(int size) {
         validateSize(size);
-        return null;
+
+        List<String> bridge = new ArrayList<>();
+        for (int count = 0; count < size; count++) {
+            bridge.add(isUpOrDown());
+        }
+        return bridge;
+    }
+
+    private String isUpOrDown() {
+        int randomNumber = bridgeNumberGenerator.generate();
+        if (randomNumber == 0) {
+            return "D";
+        }
+        return "U";
     }
 
     private void validateSize(int size) {
