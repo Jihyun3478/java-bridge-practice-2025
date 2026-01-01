@@ -11,5 +11,7 @@ public class GameController {
 
     public void start() {
         outputView.startMessage();
+
+        int bridgeSize = inputView.readBridgeSize();
     }
 }
