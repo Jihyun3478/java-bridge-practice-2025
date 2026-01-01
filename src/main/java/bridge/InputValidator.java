@@ -14,4 +14,10 @@ public class InputValidator {
             throw new IllegalArgumentException("[ERROR] 유효하지 않은 입력입니다. 다시 입력해 주세요.");
         }
     }
+
+    public static void validateGameCommand(String input) {
+        if (!(input.equals("R") || input.equals("Q"))) {
+            throw new IllegalArgumentException("[ERROR] 유효하지 않은 입력입니다. 다시 입력해 주세요.");
+        }
+    }
 }
