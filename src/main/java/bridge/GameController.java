@@ -19,11 +19,24 @@ public class GameController {
 
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
         List<String> bridge = bridgeMaker.makeBridge(bridgeSize);
-        List<String> player = new ArrayList<>();
+        List<String> upBridge = new ArrayList<>();
+        List<String> downBridge = new ArrayList<>();
 
+        BridgeGame bridgeGame = new BridgeGame();
         for (int count = 0; count < bridgeSize; count++) {
+            String currentBridgePosition = bridge.get(count);
             String movingSpace = getMovingSpace();
-            player.add(movingSpace);
+
+            String currentBridgeResult = bridgeGame.move(currentBridgePosition, movingSpace);
+            if (currentBridgePosition.equals("U")) {
+                upBridge.add(currentBridgeResult);
+                downBridge.add(" ");
+            }
+            if (currentBridgePosition.equals("D")) {
+                downBridge.add(currentBridgeResult);
+                upBridge.add(" ");
+            }
+            outputView.printMap(upBridge, downBridge);
         }
     }
 
