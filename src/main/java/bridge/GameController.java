@@ -12,6 +12,20 @@ public class GameController {
     public void start() {
         outputView.startMessage();
 
-        int bridgeSize = inputView.readBridgeSize();
+        int bridgeSize = getBridgeSize();
+
+        BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
+        bridgeMaker.makeBridge(bridgeSize);
+    }
+
+    private int getBridgeSize() {
+        while (true) {
+            try {
+                return inputView.readBridgeSize();
+            } catch (IllegalArgumentException exception) {
+                outputView.printErrorMessage(exception);
+            }
+        }
+
     }
 }
