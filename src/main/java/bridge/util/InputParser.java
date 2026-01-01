@@ -1,4 +1,4 @@
-package bridge;
+package bridge.util;
 
 public class InputParser {
     public static int parseNumber(String input) {

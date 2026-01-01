@@ -1,6 +1,6 @@
-package bridge;
+package bridge.view;
 
-import static bridge.Constant.NEW_LINE;
+import static bridge.common.Constant.NEW_LINE;
 
 import java.util.List;
 

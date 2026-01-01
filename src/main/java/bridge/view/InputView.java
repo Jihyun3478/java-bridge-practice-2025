@@ -1,7 +1,9 @@
-package bridge;
+package bridge.view;
 
-import static bridge.Constant.NEW_LINE;
+import static bridge.common.Constant.NEW_LINE;
 
+import bridge.util.InputParser;
+import bridge.util.InputValidator;
 import camp.nextstep.edu.missionutils.Console;
 
 /**
