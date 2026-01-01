@@ -22,7 +22,7 @@ public class GameController {
         List<String> player = new ArrayList<>();
 
         for (int count = 0; count < bridgeSize; count++) {
-            String movingSpace = inputView.readMoving();
+            String movingSpace = getMovingSpace();
             player.add(movingSpace);
         }
     }
@@ -36,5 +36,15 @@ public class GameController {
             }
         }
 
+    }
+
+    private String getMovingSpace() {
+        while (true) {
+            try {
+                return inputView.readMoving();
+            } catch (IllegalArgumentException exception) {
+                outputView.printErrorMessage(exception);
+            }
+        }
     }
 }
