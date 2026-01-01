@@ -1,5 +1,8 @@
 package bridge;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameController {
     private final InputView inputView;
     private final OutputView outputView;
@@ -15,7 +18,13 @@ public class GameController {
         int bridgeSize = getBridgeSize();
 
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
-        bridgeMaker.makeBridge(bridgeSize);
+        List<String> bridge = bridgeMaker.makeBridge(bridgeSize);
+        List<String> player = new ArrayList<>();
+
+        for (int count = 0; count < bridgeSize; count++) {
+            String movingSpace = inputView.readMoving();
+            player.add(movingSpace);
+        }
     }
 
     private int getBridgeSize() {
