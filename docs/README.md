@@ -308,7 +308,7 @@ int number = bridgeNumberGenerator.generate();
 
 ## 7. 구현 시간 (최종 코테 때는 지우기)
 - 기능 목록 작성: 16분
-- MVP 완성:
+- MVP 완성: 2시간 15분
 - 리팩토링:
 - 총 구현 시간:
 - 추가 구현 시간: 
