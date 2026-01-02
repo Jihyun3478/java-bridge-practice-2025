@@ -3,10 +3,12 @@ package bridge.controller;
 import bridge.BridgeRandomNumberGenerator;
 import bridge.model.domain.BridgeGame;
 import bridge.model.domain.BridgeMaker;
+import bridge.util.InputParser;
 import bridge.view.InputView;
 import bridge.view.OutputView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class GameController {
     private final InputView inputView;
@@ -54,13 +56,10 @@ public class GameController {
     }
 
     private int getBridgeSize() {
-        while (true) {
-            try {
-                return inputView.readBridgeSize();
-            } catch (IllegalArgumentException exception) {
-                outputView.printErrorMessage(exception);
-            }
-        }
+        return retryUntilSuccess(() -> {
+            String input = inputView.readBridgeSize();
+            return InputParser.parseNumber(input);
+        });
     }
 
     private boolean gameProcess(List<String> bridge, List<String> upBridge, List<String> downBridge) {
@@ -94,23 +93,11 @@ public class GameController {
     }
 
     private String getMovingSpace() {
-        while (true) {
-            try {
-                return inputView.readMoving();
-            } catch (IllegalArgumentException exception) {
-                outputView.printErrorMessage(exception);
-            }
-        }
+        return retryUntilSuccess(inputView::readMoving);
     }
 
     private String getGameCommand() {
-        while (true) {
-            try {
-                return inputView.readGameCommand();
-            } catch (IllegalArgumentException exception) {
-                outputView.printErrorMessage(exception);
-            }
-        }
+        return retryUntilSuccess(inputView::readGameCommand);
     }
 
     private boolean isFail(String currentBridgeResult) {
@@ -128,5 +115,15 @@ public class GameController {
         outputView.printFinalMessage();
         outputView.printMap(upBridge, downBridge);
         outputView.printResult(gameSuccess, attemptCount);
+    }
+
+    private <T> T retryUntilSuccess(Supplier<T> action) {
+        while (true) {
+            try {
+                return action.get();
+            } catch (IllegalArgumentException e) {
+                outputView.printErrorMessage(e);
+            }
+        }
     }
 }
