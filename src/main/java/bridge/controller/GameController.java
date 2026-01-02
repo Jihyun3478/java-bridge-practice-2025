@@ -1,12 +1,14 @@
 package bridge.controller;
 
 import bridge.BridgeRandomNumberGenerator;
-import bridge.model.domain.BridgeGame;
+import bridge.model.domain.Bridge;
 import bridge.model.domain.BridgeMaker;
+import bridge.model.domain.BridgeStatus;
+import bridge.model.domain.dto.GameResult;
+import bridge.model.service.GameService;
 import bridge.util.InputParser;
 import bridge.view.InputView;
 import bridge.view.OutputView;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -23,36 +25,58 @@ public class GameController {
         outputView.startMessage();
 
         int bridgeSize = getBridgeSize();
+        Bridge bridge = createBridge(bridgeSize);
+        GameService gameService = new GameService(bridge);
 
+        GameResult result = playGame(gameService);
+        printFinalResult(result);
+    }
+
+    private Bridge createBridge(int bridgeSize) {
         BridgeMaker bridgeMaker = new BridgeMaker(new BridgeRandomNumberGenerator());
-        List<String> bridge = bridgeMaker.makeBridge(bridgeSize);
-        List<String> upBridge = new ArrayList<>();
-        List<String> downBridge = new ArrayList<>();
+        List<String> positions = bridgeMaker.makeBridge(bridgeSize);
+        return new Bridge(positions);
+    }
 
-        boolean gameSuccess = gameProcess(bridge, upBridge, downBridge);
-        int count = 1;
+    private GameResult playGame(GameService gameService) {
+        int attemptCount = 1;
+        boolean success = playOneRound(gameService);
 
-        if (gameSuccess) {
-            getFinalResult(upBridge, downBridge, gameSuccess, count);
-        }
-        if (!gameSuccess) {
-            String gameCommand = getGameCommand();
-            while (gameCommand.equals("R")) {
-                upBridge = new ArrayList<>();
-                downBridge = new ArrayList<>();
-                gameSuccess = gameProcess(bridge, upBridge, downBridge);
-                count++;
-                if (gameSuccess) {
-                    break;
-                }
+        while (!success) {
+            String command = getGameCommand();
 
-                gameCommand = getGameCommand();
-                if (gameCommand.equals("Q")) {
-                    break;
-                }
+            if (command.equals("Q")) {
+                return GameResult.from(gameService.getCurrentStatus(), false, attemptCount);
             }
-            getFinalResult(upBridge, downBridge, gameSuccess, count);
+
+            gameService.retryGame();
+            attemptCount++;
+            success = playOneRound(gameService);
         }
+
+        return GameResult.from(gameService.getCurrentStatus(), true, attemptCount);
+    }
+
+    private boolean playOneRound(GameService gameService) {
+        for (int i = 0; i < gameService.getBridgeSize(); i++) {
+            String playerMove = getMovingSpace();
+            String result = gameService.processMove(playerMove, i);
+
+            BridgeStatus status = gameService.getCurrentStatus();
+            outputView.printMap(status.getUpBridge(), status.getDownBridge());
+
+            if (result.equals("X")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void printFinalResult(GameResult result) {
+        outputView.printFinalMessage();
+        BridgeStatus status = result.getBridgeStatus();
+        outputView.printMap(status.getUpBridge(), status.getDownBridge());
+        outputView.printResult(result.isSuccess(), result.getAttemptCount());
     }
 
     private int getBridgeSize() {
@@ -62,59 +86,12 @@ public class GameController {
         });
     }
 
-    private boolean gameProcess(List<String> bridge, List<String> upBridge, List<String> downBridge) {
-
-        getCurrentBridge(bridge, upBridge, downBridge);
-
-        return isSuccess(upBridge, downBridge);
-    }
-
-    private void getCurrentBridge(List<String> bridge, List<String> upBridge, List<String> downBridge) {
-        BridgeGame bridgeGame = new BridgeGame();
-
-        for (String currentBridgePosition : bridge) {
-            String movingSpace = getMovingSpace();
-            String currentBridgeResult = bridgeGame.move(currentBridgePosition, movingSpace);
-
-            if (currentBridgePosition.equals("U")) {
-                upBridge.add(currentBridgeResult);
-                downBridge.add(" ");
-            }
-            if (currentBridgePosition.equals("D")) {
-                downBridge.add(currentBridgeResult);
-                upBridge.add(" ");
-            }
-            outputView.printMap(upBridge, downBridge);
-
-            if (isFail(currentBridgeResult)) {
-                break;
-            }
-        }
-    }
-
     private String getMovingSpace() {
         return retryUntilSuccess(inputView::readMoving);
     }
 
     private String getGameCommand() {
         return retryUntilSuccess(inputView::readGameCommand);
-    }
-
-    private boolean isFail(String currentBridgeResult) {
-        return currentBridgeResult.equals("X");
-    }
-
-    private boolean isSuccess(List<String> upBridge, List<String> downBridge) {
-        String upBridgeFinalState = upBridge.get(upBridge.size() - 1);
-        String downBridgeFinalState = downBridge.get(downBridge.size() - 1);
-
-        return upBridgeFinalState.equals("O") || downBridgeFinalState.equals("O");
-    }
-
-    private void getFinalResult(List<String> upBridge, List<String> downBridge, boolean gameSuccess, int attemptCount) {
-        outputView.printFinalMessage();
-        outputView.printMap(upBridge, downBridge);
-        outputView.printResult(gameSuccess, attemptCount);
     }
 
     private <T> T retryUntilSuccess(Supplier<T> action) {
